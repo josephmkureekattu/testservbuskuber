@@ -99,7 +99,9 @@ spec:
             port:
               number: 8005
 ---
-apiVersion: autoscaling/v2beta2
+
+
+apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: my-app-hpa
@@ -108,11 +110,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: testservicebuswrokerapp # Replace with the name of your Deployment
-  minReplicas: 1 # Minimum number of replicas
-  maxReplicas: 3 # Maximum number of replicas
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        targetAverageUtilization: 20 # Target CPU utilization percentage
+    name: testservicebuswrokerapp
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 20
