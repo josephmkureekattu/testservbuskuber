@@ -115,4 +115,4 @@ spec:
     - type: Resource
       resource:
         name: cpu
-        targetAverageUtilization: 50 # Target CPU utilization percentage
+        targetAverageUtilization: 20 # Target CPU utilization percentage
