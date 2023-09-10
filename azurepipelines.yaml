@@ -1,0 +1,111 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+name: '$(Build.BuildId)'
+
+trigger:
+- master
+
+variables:
+  - name: sourcebranch
+    ${{ if eq(variables['Build.SourceBranchName'],'main') }}:
+      value: main
+  - name: 'solution'
+    value: '**/*.sln'      
+  - name: 'buildPlatform'
+    value: 'Any CPU'
+  - name: 'buildConfiguration'
+    value: 'Release'
+  - name: 'Version.MajorMinor'
+    value: $(base_version)
+  - name: 'Version.Revision'
+    value: $[counter(variables['Version.MajorMinor'], 30)]
+  - name: 'AppBuildVer'
+    value: '$(Version.MajorMinor).$(Version.Revision)'
+  - name: 'image_tag'
+    value: '$(Build.BuildId)'
+  - name: checkoutbranch
+    ${{ if eq(variables['Build.SourceBranchName'],'main') }}:
+      value: 'main'
+
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+          
+- stage: BUILD
+  condition: and(ne(variables['Build.Reason'], 'PullRequest'), in(variables['Build.Reason'], 'Manual', 'IndividualCI'))
+  jobs:
+    - job:
+      displayName: "Build"
+       
+      pool:
+        vmImage: 'ubuntu-latest'
+      workspace:
+        clean: all
+      steps:
+       - checkout: self
+       
+       - task: Docker@2
+         inputs:
+           command: 'login'
+           containerRegistry: newtestappjspcont
+
+       - task: Docker@2
+         inputs:
+           containerRegistry: 'newtestappjspcont'
+           repository: 'TestServiceBusWrokerApp'
+           command: 'buildAndPush'
+           Dockerfile: '**/Dockerfile'
+           buildContext: '$(System.DefaultWorkingDirectory)'
+
+       - task: CopyFiles@2
+         inputs:
+           SourceFolder: 'deployment'
+           Contents: deployment*.yaml
+           TargetFolder: '$(Build.ArtifactStagingDirectory)'
+       - task: PublishBuildArtifacts@1
+         inputs:
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+         condition: succeededOrFailed() 
+
+- stage: DEPLOY_TO_DEVELOP
+  dependsOn: BUILD
+  condition: and(succeeded('BUILD'), in(variables['Build.Reason'], 'Manual', 'IndividualCI'), ne(variables.sourcebranch, 'qa'), ne(variables.sourcebranch, 'uat'), ne(variables.sourcebranch, 'prod'))
+  jobs:
+  - deployment: DEPLOY_TO_DEVELOP
+    displayName: DEPLOY_TO_DEVELOP
+    pool:
+      vmImage: 'ubuntu-latest'
+    workspace:
+      clean: all
+    environment: DEV
+    strategy:
+      runOnce:
+        deploy:
+          steps:          
+            - task: replacetokens@5
+              inputs:
+                targetFiles: '$(Agent.BuildDirectory)/drop/deployment.yaml'
+                encoding: 'auto'
+                tokenPattern: 'default'
+                writeBOM: true
+                actionOnMissing: 'warn'
+                keepToken: false
+                actionOnNoFiles: 'continue'
+                enableTransforms: false
+                enableRecursion: false
+                useLegacyPattern: false
+                enableTelemetry: true
+
+            - task: Kubernetes@1
+              displayName: 'Deploy to kubernetes'
+              inputs:
+                connectionType: 'Kubernetes Service Connection'
+                kubernetesServiceEndpoint: 'jsp_kubecluster'
+                namespace: 'dotnetapitestapp-nmspce'
+                command: 'apply'
+                useConfigurationFile: true
+                configuration: '$(Agent.BuildDirectory)/drop/deployment.yaml'
