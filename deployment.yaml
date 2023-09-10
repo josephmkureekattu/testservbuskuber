@@ -23,7 +23,7 @@ spec:
         - name: newtestappjspcont
       containers:
         - name: testservicebuswrokerapp
-          image: newtestappjspcont.azurecr.io/dotnetapitest:#{image_tag}#
+          image: newtestappjspcont.azurecr.io/testservicebuswrokerapp:#{image_tag}#
           #image: containerregistrydotnetapitest1.azurecr.io/dotnetapitest:75
           imagePullPolicy: IfNotPresent
           resources:

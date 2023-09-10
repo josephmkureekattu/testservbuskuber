@@ -104,8 +104,8 @@ stages:
               displayName: 'Deploy to kubernetes'
               inputs:
                 connectionType: 'Kubernetes Service Connection'
-                kubernetesServiceEndpoint: 'jsp_kubecluster'
-                namespace: 'dotnetapitestapp-nmspce'
+                kubernetesServiceEndpoint: 'testclusterjsp'
+                namespace: 'testservicebuswrokerapp-nmspce'
                 command: 'apply'
                 useConfigurationFile: true
                 configuration: '$(Agent.BuildDirectory)/drop/deployment.yaml'
