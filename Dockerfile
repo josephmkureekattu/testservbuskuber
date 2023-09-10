@@ -2,9 +2,9 @@
 
 FROM mcr.microsoft.com/dotnet/runtime:6.0 AS base
 
-EXPOSE 8005
+EXPOSE 80
 EXPOSE 443
-ENV ASPNETCORE_URLS=http://+:8005
+ENV ASPNETCORE_URLS=http://+:80
 
 WORKDIR /app
 
