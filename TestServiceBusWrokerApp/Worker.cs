@@ -46,8 +46,6 @@ namespace TestServiceBusWrokerApp
 
 
             await processor.StartProcessingAsync(stoppingToken);
-            Console.WriteLine("Wait for a minute and then press any key to end the processing");
-            Console.ReadKey();
 
             // The processor will handle message retrieval and processing
             // create a timer delay task to wait indefinite
