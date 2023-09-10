@@ -7,7 +7,18 @@ namespace TestServiceBusWrokerApp
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var builder = WebApplication.CreateBuilder(args);
+            var configuration = builder.Configuration;
+            builder.Services.AddHostedService<Worker>();
+            
+            
+
+
+            var app = builder.Build();
+
+            app.MapGet("/api/test", () => "Hello World!");
+
+            app.Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
