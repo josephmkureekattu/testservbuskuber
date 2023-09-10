@@ -99,7 +99,7 @@ spec:
             port:
               number: 8005
 ---
-apiVersion: autoscaling/v2
+apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
   name: my-app-hpa
@@ -109,7 +109,6 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: testservicebuswrokerapp # Replace with the name of your Deployment
-    namespace: testservicebuswrokerapp-nmspce
   minReplicas: 1 # Minimum number of replicas
   maxReplicas: 3 # Maximum number of replicas
   metrics:
