@@ -9,8 +9,8 @@ trigger:
 
 variables:
   - name: sourcebranch
-    ${{ if eq(variables['Build.SourceBranchName'],'main') }}:
-      value: main
+    ${{ if eq(variables['Build.SourceBranchName'],'master') }}:
+      value: master
   - name: 'solution'
     value: '**/*.sln'      
   - name: 'buildPlatform'
@@ -26,8 +26,8 @@ variables:
   - name: 'image_tag'
     value: '$(Build.BuildId)'
   - name: checkoutbranch
-    ${{ if eq(variables['Build.SourceBranchName'],'main') }}:
-      value: 'main'
+    ${{ if eq(variables['Build.SourceBranchName'],'master') }}:
+      value: 'master'
 
 
 pool:
